@@ -47,3 +47,24 @@ const variations = {
     }
   `,
 };
+
+type ButtonProps = {
+  variation?: "primary" | "secondary" | "danger";
+  size?: "small" | "medium" | "large";
+};
+
+const Button = styled.button<ButtonProps>`
+  border: none;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+
+  ${({ size }) => size && sizes[size]}
+  ${({ variation }) => variation && variations[variation]}
+`;
+
+Button.defaultProps = {
+  variation: "primary",
+  size: "medium",
+};
+
+export default Button;
