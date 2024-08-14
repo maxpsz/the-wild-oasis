@@ -1,3 +1,4 @@
+import { Cabin, CabinInput } from "../types/types";
 import supabase from "./supabase";
 
 export async function getCabins() {
@@ -9,6 +10,15 @@ export async function getCabins() {
   }
 
   return cabins;
+}
+
+export async function createCabin(newCabin: CabinInput) {
+  const { error } = await supabase.from("cabins").insert([newCabin]);
+
+  if (error) {
+    console.error(error);
+    throw new Error("Cabin could not be created");
+  }
 }
 
 export async function deleteCabin(id: number) {

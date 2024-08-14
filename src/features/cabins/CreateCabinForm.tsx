@@ -6,6 +6,10 @@ import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
 import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createCabin } from "../../services/apiCabins";
+import toast from "react-hot-toast";
+import { Cabin, CabinInput } from "../../types/types";
 
 type FieldValues = {
   name: string;
@@ -52,10 +56,31 @@ const Error = styled.span`
 `;
 
 function CreateCabinForm() {
-  const { register, handleSubmit } = useForm<FieldValues>();
+  const { register, handleSubmit, reset } = useForm<FieldValues>();
+  const queryClient = useQueryClient();
+  const { mutate, isPending: isCreating } = useMutation({
+    mutationFn: createCabin,
+    onSuccess: () => {
+      toast.success("New cabin successfully created");
+      queryClient.invalidateQueries({
+        queryKey: ["cabins"],
+      });
+      reset();
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
   function onSubmit(data: FieldValues) {
-    console.log(data);
+    const newCabin: CabinInput = {
+      name: data.name,
+      max_capacity: data.maxCapacity,
+      regular_price: data.regularPrice,
+      discount: data.discount,
+      description: data.description,
+      image: "",
+    };
+
+    mutate(newCabin);
   }
 
   return (
@@ -100,11 +125,10 @@ function CreateCabinForm() {
       </FormRow>
 
       <FormRow>
-        {/* type is an HTML attribute! */}
         <Button variation="secondary" type="reset">
           Cancel
         </Button>
-        <Button>Edit cabin</Button>
+        <Button disabled={isCreating}>Add cabin</Button>
       </FormRow>
     </Form>
   );
